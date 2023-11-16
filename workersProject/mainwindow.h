@@ -24,5 +24,8 @@ private:
     QMap<int, QPushButton *> m_nameBtnsThread;
     QList<BaseWorker*> m_workers;
 
+    //TODO[new]:: заменить std::inique_ptr на QSqopedPointer
+    //TODO[new]::указательна данные
+
 };
 #endif // MAINWINDOW_H
