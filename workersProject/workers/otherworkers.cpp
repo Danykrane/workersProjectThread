@@ -16,16 +16,25 @@ FirstWorker::FirstWorker(QObject *parent, int id)
 
 void FirstWorker::onExec()
 {
+    if (!getSatus()) {
+        // если статус подключения false
+        return;
+    }
     qDebug() << "first exec";
 }
 
 void FirstWorker::onClose()
 {
+    if (!getSatus()) {
+        // если статус подключения false
+        return;
+    }
     qDebug() << "first close";
 }
 
 void FirstWorker::runThread()
 {
+    m_thread->start();
     qDebug() << "first runThread";
 }
 
@@ -40,11 +49,19 @@ GeneratorWorker::GeneratorWorker(QObject *parent, int id)
 
 void GeneratorWorker::onExec()
 {
+    if (!getSatus()) {
+        // если статус подключения false
+        return;
+    }
     qDebug() << "GeneratorWorker exec";
 }
 
 void GeneratorWorker::onClose()
 {
+    if (!getSatus()) {
+        // если статус подключения false
+        return;
+    }
     qDebug() << "GeneratorWorker close";
 }
 
@@ -62,16 +79,25 @@ SecondWorker::SecondWorker(QObject *parent, int id)
 
 void SecondWorker::onExec()
 {
+    if (!getSatus()) {
+        // если статус подключения false
+        return;
+    }
       qDebug() << "SecondWorker exec";
 }
 
 void SecondWorker::onClose()
 {
+      if (!getSatus()) {
+        // если статус подключения false
+        return;
+      }
   qDebug() << "SecondWorker close";
 }
 
 void SecondWorker::runThread()
 {
+  m_thread->start();
   qDebug() << "SecondWorker runThread";
 }
 
@@ -90,16 +116,25 @@ ThirdWorker::ThirdWorker(QObject *parent, int id, int waitMsec)
 
 void ThirdWorker::onExec()
 {
+    if (!getSatus()) {
+        // если статус подключения false
+        return;
+    }
     qDebug() << "third exec";
 }
 
 void ThirdWorker::onClose()
 {
+    if (!getSatus()) {
+        // если статус подключения false
+        return;
+    }
     qDebug() << "third close";
 }
 
 void ThirdWorker::runThread()
 {
+    m_thread->start();
     qDebug() << "third runThread";
 }
 

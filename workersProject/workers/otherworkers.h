@@ -25,7 +25,7 @@ private:
 
 private:
     QVector<int> m_generatedValues;
-    std::unique_ptr<QThread> m_thread;
+    QScopedPointer<QThread> m_thread;
 };
 
 
@@ -47,7 +47,7 @@ protected:
     void runThread() override;
 
 protected:
-    std::unique_ptr<QThread> m_thread;
+    QScopedPointer<QThread> m_thread;
 };
 
 /*!

@@ -11,10 +11,19 @@
 
 #include <QDebug>
 
+namespace {
 
 enum workerNum { firstWorker = 0,
                  secondWorker = 1,
                  thirdWorker = 2};
+
+QMap<workerNum, QString> workerNames{
+    {firstWorker, "First Worker"},
+    {secondWorker, "Second Worker"},
+    {thirdWorker, "Third Worker"}
+};
+
+} // namespace
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -65,7 +74,6 @@ void MainWindow::createWidgets()
     runStopLayer->addWidget(runBtn);
     runStopLayer->addWidget(stopBtn);
 
-
     QPushButton *clearBtn = new QPushButton("clear");
     mainlayer->addWidget(clearBtn, 0, Qt::AlignRight);
     connect(clearBtn, &QPushButton::clicked, textField, &QTextEdit::clear);
@@ -79,21 +87,43 @@ void MainWindow::createWidgets()
 
 
     connect(runBtn, &QPushButton::clicked, [=]() {
+        runBtn->setEnabled(false);
+
+        for (const auto &elem : m_nameBtnsThread.values()) {
+            if (elem->isChecked()) {
+                elem->setEnabled(false);
+            }
+        }
         for (const auto &worker : m_workers) {
             worker->onExec();
         }
+
     });
 
     connect(stopBtn, &QPushButton::clicked, [=]() {
+        runBtn->setEnabled(true);
+
+
         for (const auto &worker : m_workers) {
-            worker->onClose();
+            int indexWorker = m_workers.indexOf(worker);
+            bool state = m_nameBtnsThread.value(indexWorker)->isEnabled();
+            if (!state) {
+                worker->onClose();
+            }
         }
+
+        for (const auto &elem : m_nameBtnsThread.values()) {
+            elem->setEnabled(true);
+        }
+
     });
 
     for (const auto &elem : m_nameBtnsThread.values()) {
         connect(elem, &QPushButton::clicked, [=]() {
             bool status = elem->isChecked();
             m_workers.at(m_nameBtnsThread.key(elem))->setStatus(status);
+            auto enumWorker = m_nameBtnsThread.key(elem);
+            qDebug() << workerNames.value(static_cast<workerNum>(enumWorker)) << "status" << status;
         });
     }
 

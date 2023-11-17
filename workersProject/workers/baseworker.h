@@ -46,11 +46,11 @@ public:
     /*!
      * \brief lockerMutex - мбютекс
      */
-    std::unique_ptr<workerLock> lockerMutex;
+    QScopedPointer<workerLock> lockerMutex;
 private:
     // workerNum::0 \ 1 \ 2
     int m_id;
-    bool m_status;
+    bool m_status = false;
 };
 
 #endif // BASEWORKER_H
