@@ -33,6 +33,9 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    for (const auto &item : m_workers) {
+        delete item;
+    }
 }
 
 void MainWindow::createWidgets()
@@ -81,9 +84,9 @@ void MainWindow::createWidgets()
     mainlayer->addWidget(runStopLayer->parentWidget());
 
     // Заполняем m_workers
-    m_workers.push_back(new FirstWorker(this, firstWorker));
-    m_workers.push_back(new SecondWorker(this, secondWorker));
-    m_workers.push_back(new ThirdWorker(this, thirdWorker, 1000));
+    m_workers.push_back(new FirstWorker(firstWorker));
+    m_workers.push_back(new SecondWorker(secondWorker));
+    m_workers.push_back(new ThirdWorker(thirdWorker, 1000));
 
 
     connect(runBtn, &QPushButton::clicked, [=]() {
@@ -122,8 +125,8 @@ void MainWindow::createWidgets()
         connect(elem, &QPushButton::clicked, [=]() {
             bool status = elem->isChecked();
             m_workers.at(m_nameBtnsThread.key(elem))->setStatus(status);
-            auto enumWorker = m_nameBtnsThread.key(elem);
-            qDebug() << workerNames.value(static_cast<workerNum>(enumWorker)) << "status" << status;
+//            auto enumWorker = m_nameBtnsThread.key(elem);
+//            qDebug() << workerNames.value(static_cast<workerNum>(enumWorker)) << "status" << status;
         });
     }
 

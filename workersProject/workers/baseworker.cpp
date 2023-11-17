@@ -1,12 +1,19 @@
 #include "baseworker.h"
 
-BaseWorker::BaseWorker(QObject *parent, int id)
-    : QObject(parent)
-    , lockerMutex(new workerLock())
+#include <QDebug>
+
+BaseWorker::BaseWorker(int id):
+    lockerMutex(new workerLock())
     , m_id(id)
 {
 
 }
+
+BaseWorker::~BaseWorker()
+{
+
+}
+
 
 void BaseWorker::setStatus(bool value)
 {

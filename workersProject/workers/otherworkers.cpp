@@ -1,17 +1,41 @@
 #include "otherworkers.h"
 
+#include <QEventLoop>
 #include <QThread>
 
+#include <QAbstractEventDispatcher>
+
+#include <QRandomGenerator>
 #include <QDebug>
 
 //---------------------------------------------------------------- First Worker
 
-FirstWorker::FirstWorker(QObject *parent, int id)
-    : BaseWorker(parent, id)
+FirstWorker::FirstWorker(int id)
+    : BaseWorker(id)
     , m_thread(new QThread)
 {
     m_thread.get()->setObjectName("FirstWorkerThread");
-    runThread();
+
+    QEventLoop loop;
+
+    QObject::connect(m_thread.get(),
+                     &QThread::started,
+                     &loop,
+                     &QEventLoop::quit,
+                     Qt::QueuedConnection);
+
+    m_thread->start();
+
+    loop.exec();
+
+}
+
+FirstWorker::~FirstWorker()
+{
+//    qDebug() << "Деструктор FirstWorker";
+    m_thread->quit();
+    m_thread->wait();
+    m_thread->deleteLater();
 }
 
 void FirstWorker::onExec()
@@ -20,7 +44,7 @@ void FirstWorker::onExec()
         // если статус подключения false
         return;
     }
-    qDebug() << "first exec";
+//    qDebug() << "first exec";
 }
 
 void FirstWorker::onClose()
@@ -29,52 +53,54 @@ void FirstWorker::onClose()
         // если статус подключения false
         return;
     }
-    qDebug() << "first close";
+//    qDebug() << "first close";
 }
 
 void FirstWorker::runThread()
 {
-    m_thread->start();
-    qDebug() << "first runThread";
+
+//    qDebug() << "first runThread";
 }
 
 
 //------------------------------------------------------ GeneratorWorker Worker
-GeneratorWorker::GeneratorWorker(QObject *parent, int id)
-    : BaseWorker(parent, id)
+GeneratorWorker::GeneratorWorker(int id)
+    : BaseWorker(id)
     , m_thread(new QThread)
 {
     m_thread.get()->setObjectName("GeneratorWorkerThread");
 }
 
-void GeneratorWorker::onExec()
+GeneratorWorker::~GeneratorWorker()
 {
-    if (!getSatus()) {
-        // если статус подключения false
-        return;
-    }
-    qDebug() << "GeneratorWorker exec";
+//    qDebug() << "Деструктор GeneratorWorkerThread";
+    m_thread->quit();
+    m_thread->wait();
+    m_thread->deleteLater();
 }
 
-void GeneratorWorker::onClose()
+uint32_t GeneratorWorker::generateNum()
 {
-    if (!getSatus()) {
-        // если статус подключения false
-        return;
-    }
-    qDebug() << "GeneratorWorker close";
+    return QRandomGenerator::global()->bounded(256);
 }
 
-void GeneratorWorker::runThread()
-{
-    qDebug() << "GeneratorWorker runThread";
-}
 //--------------------------------------------------------------- Second Worker
-SecondWorker::SecondWorker(QObject *parent, int id)
-    : GeneratorWorker(parent, id)
+SecondWorker::SecondWorker(int id)
+    : GeneratorWorker(id)
 {
     m_thread.get()->setObjectName("SecondThread");
-    runThread();
+
+    QEventLoop loop;
+    QObject::connect(m_thread.get(),
+                     &QThread::started,
+                     &loop,
+                     &QEventLoop::quit,
+                     Qt::QueuedConnection);
+
+    m_thread->start();
+
+    loop.exec();
+
 }
 
 void SecondWorker::onExec()
@@ -83,7 +109,16 @@ void SecondWorker::onExec()
         // если статус подключения false
         return;
     }
-      qDebug() << "SecondWorker exec";
+
+    uint32_t genNum = 0;
+    auto generate = [&genNum, this]() -> void {
+        genNum = generateNum();
+    };
+
+    QMetaObject::invokeMethod(
+        QAbstractEventDispatcher::instance(m_thread.get()),
+        generate, Qt::QueuedConnection);
+
 }
 
 void SecondWorker::onClose()
@@ -92,25 +127,36 @@ void SecondWorker::onClose()
         // если статус подключения false
         return;
       }
-  qDebug() << "SecondWorker close";
+//  qDebug() << "SecondWorker close";
 }
 
 void SecondWorker::runThread()
 {
-  m_thread->start();
-  qDebug() << "SecondWorker runThread";
+
+//  qDebug() << "SecondWorker runThread";
 }
 
 
 //---------------------------------------------------------------- Third Worker
 
 
-ThirdWorker::ThirdWorker(QObject *parent, int id, int waitMsec)
-    : GeneratorWorker(parent, id)
+ThirdWorker::ThirdWorker(int id, int waitMsec)
+    : GeneratorWorker(id)
     , m_waitMsec(waitMsec)
 {
-    m_thread.get()->setObjectName("ThirdWorkerThread");
-    runThread();
+      m_thread.get()->setObjectName("ThirdWorkerThread");
+
+      QEventLoop loop;
+      QObject::connect(m_thread.get(),
+                       &QThread::started,
+                       &loop,
+                       &QEventLoop::quit,
+                       Qt::QueuedConnection);
+
+      m_thread->start();
+
+      loop.exec();
+
 
 }
 
@@ -120,7 +166,16 @@ void ThirdWorker::onExec()
         // если статус подключения false
         return;
     }
-    qDebug() << "third exec";
+
+//    uint32_t genNum;
+//    auto generate = [&genNum, this]() -> void {
+//        genNum = generateNum();
+//    };
+
+//    QMetaObject::invokeMethod(
+//        QAbstractEventDispatcher::instance(m_thread.get()),
+//                                           generate, Qt::QueuedConnection);
+//    qDebug() << "third exec";
 }
 
 void ThirdWorker::onClose()
@@ -129,13 +184,12 @@ void ThirdWorker::onClose()
         // если статус подключения false
         return;
     }
-    qDebug() << "third close";
+//    qDebug() << "third close";
 }
 
 void ThirdWorker::runThread()
 {
-    m_thread->start();
-    qDebug() << "third runThread";
+
 }
 
 

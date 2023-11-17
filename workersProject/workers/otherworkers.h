@@ -4,14 +4,16 @@
 #include "baseworker.h"
 #include <QVector>
 
+class QThread;
 /*!
- * \brief Класс проверщика и хранитиля данных
+ * \brief Класс проверщика и хранителя данных
  */
 class FirstWorker : public BaseWorker
 {
-    Q_OBJECT
 public:
-    explicit FirstWorker(QObject *parent = nullptr, int id = 0);
+    explicit FirstWorker(int id = 0);
+
+    ~FirstWorker() override;
 
     void onExec() override;
     void onClose() override;
@@ -34,17 +36,11 @@ private:
  */
 class GeneratorWorker : public BaseWorker
 {
-    Q_OBJECT
 public:
-    explicit GeneratorWorker(QObject *parent = nullptr, int id = 3);
+    explicit GeneratorWorker(int id = 3);
+    ~GeneratorWorker() override;
 
-    void onExec() override;
-    void onClose() override;
-
-    int generateNum();
-
-protected:
-    void runThread() override;
+    uint32_t generateNum();
 
 protected:
     QScopedPointer<QThread> m_thread;
@@ -55,9 +51,8 @@ protected:
  */
 class SecondWorker : public GeneratorWorker
 {
-    Q_OBJECT
 public:
-    explicit SecondWorker(QObject *parent = nullptr, int id = 1);
+    explicit SecondWorker(int id = 1);
 
     void onExec() override;
     void onClose() override;
@@ -71,9 +66,8 @@ private:
  */
 class ThirdWorker : public GeneratorWorker
 {
-    Q_OBJECT
 public:
-    explicit ThirdWorker(QObject *parent = nullptr, int id = 2, int waitMsec = 0);
+    explicit ThirdWorker(int id = 2, int waitMsec = 0);
 
     void onExec() override;
     void onClose() override;

@@ -1,21 +1,25 @@
 #ifndef BASEWORKER_H
 #define BASEWORKER_H
 
-#include <QObject>
-
+#include <QScopedPointer>
 #include "workerlock.h"
 
+
 class workerLock;
-class BaseWorker : public QObject
+class BaseWorker
 {
-    Q_OBJECT
 public:
     /*!
      * \brief BaseWorker - конструктор базового класса
      * \param parent - родитель
      * \param id - id Worker
      */
-    explicit BaseWorker(QObject *parent = nullptr, int id = 0);
+    explicit BaseWorker(int id = 0);
+
+    /*!
+     * \brief ~BaseWorker - pure virtual дструктор
+     */
+    virtual ~BaseWorker() = 0;
 
     /*!
      * \brief onExec - функция запуска выполнения основных действий
@@ -37,9 +41,11 @@ public:
      */
     bool getSatus();
 
+
 protected:
     /*!
-     * \brief runThread - ф-ия запуска потока в дочернем классе
+     * \brief runThread - действия на выполнение в отдельном потоке
+     *                    дочернего класса
      */
     virtual void runThread() = 0;
 public:
